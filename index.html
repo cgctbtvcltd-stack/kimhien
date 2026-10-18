@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gửi Người Em Yêu - 20/10</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: radial-gradient(circle at center, #2b0938, #0a0012);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Quicksand', sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* --- Màn hình Intro khởi động phát nhạc --- */
+        .start-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(10, 0, 18, 0.95);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            cursor: pointer;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+        }
+
+        .start-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .heart-icon-big {
+            font-size: 80px;
+            animation: heartPulse 1s infinite alternate;
+            margin-bottom: 20px;
+        }
+
+        @keyframes heartPulse {
+            0% { transform: scale(1); filter: drop-shadow(0 0 10px #ff2a75); }
+            100% { transform: scale(1.25); filter: drop-shadow(0 0 25px #ff2a75); }
+        }
+
+        .start-title {
+            font-family: 'Dancing Script', cursive;
+            font-size: 32px;
+            color: #ff85a2;
+            margin-bottom: 10px;
+        }
+
+        .start-subtitle {
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* --- Giao diện Thiệp chính --- */
+        .card {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            padding: 40px 30px;
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(255, 255, 255, 0.1);
+            text-align: center;
+            max-width: 420px;
+            width: 90%;
+            z-index: 10;
+            animation: floatCard 4s ease-in-out infinite;
+        }
+
+        @keyframes floatCard {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .avatar-box {
+            position: relative;
+            width: 170px;
+            height: 170px;
+            margin: 0 auto 25px auto;
+        }
+
+        .avatar-box::before {
+            content: '';
+            position: absolute;
+            top: -5px; left: -5px; right: -5px; bottom: -5px;
+            background: linear-gradient(45deg, #ff007f, #ffb6c1, #7928ca, #ff007f);
+            border-radius: 50%;
+            z-index: 1;
+            animation: spinGlow 3s linear infinite;
+        }
+
+        @keyframes spinGlow {
+            0% { transform: rotate(0deg); filter: blur(8px); }
+            100% { transform: rotate(360deg); filter: blur(8px); }
+        }
+
+        .avatar-img {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            z-index: 2;
+            border: 4px solid #fff;
+        }
+
+        .heart-badge {
+            position: absolute;
+            bottom: 5px;
+            right: 10px;
+            background: #ff2a75;
+            color: white;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3;
+            font-size: 18px;
+            box-shadow: 0 0 10px #ff2a75;
+            animation: pulse 1.2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        h1 {
+            font-family: 'Dancing Script', cursive;
+            color: #ff85a2;
+            font-size: 36px;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(255, 133, 162, 0.5);
+        }
+
+        .message-box {
+            color: #f1f1f1;
+            font-size: 16px;
+            line-height: 1.6;
+            min-height: 90px;
+            margin-bottom: 25px;
+        }
+
+        .btn-love {
+            background: linear-gradient(45deg, #ff416c, #ff4b2b);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(255, 65, 108, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .btn-love:hover {
+            transform: scale(1.08);
+            box-shadow: 0 8px 25px rgba(255, 65, 108, 0.8);
+        }
+
+        /* Modal thư bí mật */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: #fff;
+            color: #333;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 380px;
+            width: 85%;
+            text-align: center;
+            position: relative;
+            animation: zoomIn 0.4s ease;
+        }
+
+        @keyframes zoomIn {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px; right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #888;
+        }
+
+        /* Cánh hoa rơi */
+        .petal {
+            position: absolute;
+            background: #ffb6c1;
+            border-radius: 15px 0 15px 0;
+            opacity: 0.7;
+            pointer-events: none;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-10vh) rotate(0deg); }
+            100% { transform: translateY(105vh) rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Màn hình chờ vừa vào trang để kích hoạt Nhạc tự động -->
+    <div class="start-overlay" id="startOverlay" onclick="startExperience()">
+        <div class="heart-icon-big">💌</div>
+        <div class="start-title">Có một món quà dành cho chị Kim Hiềnn...</div>
+        <div class="start-subtitle">(Chạm vào màn hình để mở quà nhé ❤️)</div>
+    </div>
+
+    <!-- Nhạc nền lãng mạn (Thay file nhac_nen.mp3 hoặc dùng link trực tuyến) -->
+    <audio id="bg-music" loop>
+        <source src="nhacnen.mp3" type="audio/mpeg">
+        <source src="nhacnen.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="card">
+        <div class="avatar-box">
+            <!-- Thay file ảnh ban_gai.jpg của bạn ở đây -->
+            <img src="kimhien.jpg" alt="Bạn gái" class="avatar-img">
+            <div class="heart-badge">❤️</div>
+        </div>
+        <h1>Happy Women's Day</h1>
+        <div class="message-box" id="typing-text"></div>
+        <button class="btn-love" onclick="openSecretLetter()">Mở Món Quà Bí Mật 🎁</button>
+    </div>
+
+    <!-- Modal thông điệp đặc biệt -->
+    <div class="modal" id="secretModal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h2 style="color: #ff2a75; font-family: 'Dancing Script', cursive; font-size: 30px; margin-bottom: 10px;">Gửi Công Chúa Của Anh 💌</h2>
+            <p style="line-height: 1.6; color: #555; font-size: 15px;">
+                Cảm ơn chị đã xuất hiện và làm cho thế giới của em trở nên rạng rỡ hơn. Chúc chị Kim Hiền ngày 20/10 luôn tràn ngập tiếng cười, xinh đẹp rạng ngời và mãi bên em nhaaaa! em yêu chị Kim Hiền nhấtt! ❤️✨
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const text = "Chúc mừng ngày 20/10 người phụ nữ tuyệt vời nhất trong lòng em! Chúc chị Kim Hiền luôn rạng rỡ, hạnh phúc và gặp thật nhiều may mắn... ✨🌸";
+        let index = 0;
+        let isStarted = false;
+
+        // Bắt đầu phát nhạc ngay khi người dùng chạm vào màn hình lần đầu
+        function startExperience() {
+            if (isStarted) return;
+            isStarted = true;
+
+            // 1. Phát nhạc
+            const music = document.getElementById("bg-music");
+            music.volume = 0.7;
+            music.play().catch(err => console.log("Lỗi nhạc:", err));
+
+            // 2. Ẩn màn hình chờ
+            document.getElementById("startOverlay").classList.add("hidden");
+
+            // 3. Chạy chữ & cánh hoa rơi
+            typeWriter();
+            createPetals();
+
+            // 4. Bắn pháo hoa chào mừng
+            confetti({
+                particleCount: 80,
+                spread: 60,
+                origin: { y: 0.7 }
+            });
+        }
+
+        // Tự động cố gắng phát nhạc nếu trình duyệt không chặn
+        window.addEventListener('DOMContentLoaded', () => {
+            const music = document.getElementById("bg-music");
+            music.play().then(() => {
+                // Nếu trình duyệt cho phép tự phát (không bị chặn), tự ẩn overlay luôn
+                document.getElementById("startOverlay").classList.add("hidden");
+                typeWriter();
+                createPetals();
+                isStarted = true;
+            }).catch(() => {
+                // Nếu trình duyệt chặn, chờ người dùng chạm vào màn hình
+            });
+        });
+
+        // Hiệu ứng gõ chữ
+        function typeWriter() {
+            if (index < text.length) {
+                document.getElementById("typing-text").innerHTML += text.charAt(index);
+                index++;
+                setTimeout(typeWriter, 45);
+            }
+        }
+
+        // Tạo cánh hoa rơi tự động
+        function createPetals() {
+            for (let i = 0; i < 25; i++) {
+                const petal = document.createElement('div');
+                petal.classList.add('petal');
+                petal.style.left = Math.random() * 100 + 'vw';
+                petal.style.width = Math.random() * 12 + 8 + 'px';
+                petal.style.height = Math.random() * 15 + 10 + 'px';
+                petal.style.animationDuration = Math.random() * 5 + 5 + 's';
+                petal.style.animationDelay = Math.random() * 5 + 's';
+                document.body.appendChild(petal);
+            }
+        }
+
+        // Bắn thêm pháo hoa & mở thư bí mật
+        function openSecretLetter() {
+            confetti({
+                particleCount: 130,
+                spread: 80,
+                origin: { y: 0.6 }
+            });
+            document.getElementById("secretModal").style.display = "flex";
+        }
+
+        function closeModal() {
+            document.getElementById("secretModal").style.display = "none";
+        }
+    </script>
+</body>
+</html>
